@@ -1,0 +1,52 @@
+<!-- Displays collection of complimenting products. Each individual product has it's own grid which provides variant options and add-to-cart functionality. -->
+<div class="pp-collection-container">
+  {% assign relatedCollection = product.metafields.collection.products.value %}
+  {% assign productGridPlacement = "pp-collection" %}
+  <div class="pp-collection-title">
+    <h2>More customer favourites</h2>
+  </div>
+  <div class="pp-collection">
+    {% for collectionProduct in relatedCollection %}
+      <div class="pp-collection-product">
+        {% render 'custom-product-grid', c-product: collectionProduct, showATCButton: true, location: productGridPlacement %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+  .pp-collection-container {
+    padding: 3rem 1.5rem;
+    background: #ede3dd;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 100%;
+  }
+  .pp-collection-title h2 {
+    margin: 0;
+  }
+  .pp-collection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .pp-collection-product {
+    width: 100%;
+  }
+  @media screen and (min-width: 751px) {
+    .pp-collection {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+  }
+  @media screen and (min-width: 1200px) {
+    .pp-collection-container {
+      padding: 5rem 2.5rem;
+      gap: 2.5rem;
+    }
+    .pp-collection {
+      gap: 20px;
+    }
+  }
+</style>
