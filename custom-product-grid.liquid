@@ -1,0 +1,123 @@
+<div class="collection-product-grid">
+  {% assign selectedVariant = c-product.selected_or_first_available_variant %}
+  <a href="{{ c-product.url }}" class="collection-product-grid--image">
+    <img src="{{ selectedVariant.featured_image | img_url: 'master' }}" alt="{{ selectedVariant.featured_image.alt }}" id="variant-image-{{ c-product.id }}-{{ location }}">
+  </a>
+  <a href="{{ c-product.url }}" class="collection-product-grid--title">
+    <h4>{{ c-product.title }}</h4>
+  </a>
+  <div class="collection-product-grid--variants">
+    <div class="collection-product-grid--variant" id="collection-product-grid--variants">
+      {% render 'dropdown-menu', c-product: c-product, location: location %}
+    </div>
+  </div>
+  <div class="collection-product-grid--buy-buttons {% if showATCButton != true %}no-display{% endif %}">
+    <product-form
+      class="product-form"
+      data-hide-errors="{{ gift_card_recipient_feature_active }}"
+      data-section-id="{{ section.id }}"
+      style="margin:0;"
+    >
+      <div class="upsellATCbuttonContainer">
+        {%- form 'product',
+            c-product,
+            id: product_form_id,
+            class: 'form',
+            novalidate: 'novalidate',
+            data-type: 'add-to-cart-form'
+          -%}
+            <input
+              type="hidden"
+              name="id"
+              value="{{ selectedVariant.id }}"
+              {% if selectedVariant.available == false or quantity_rule_soldout %}
+                disabled
+              {% endif %}
+              class="product-variant-id-{{ c-product.id }}-{{ location }}"
+            >
+            <div class="product-form__buttons">
+              {%- liquid
+                assign check_against_inventory = true
+                if c-product.selected_or_first_available_variant.inventory_management != 'shopify' or c-product.selected_or_first_available_variant.inventory_policy == 'continue'
+                  assign check_against_inventory = false
+                endif
+                if c-product.selected_or_first_available_variant.quantity_rule.min > c-product.selected_or_first_available_variant.inventory_quantity and check_against_inventory
+                  assign quantity_rule_soldout = true
+                endif
+              -%}
+              <button
+                id="ProductSubmitButton-ppUpsell-{{ c-product.id }}-{{ location }}"
+                type="submit"
+                name="add"
+                class="product-form__submit button button--full-width {% if show_dynamic_checkout %}button--secondary{% else %}button--primary{% endif %}"
+                {% if product.selected_or_first_available_variant.available == false or quantity_rule_soldout %}
+                  disabled
+                {% endif %}
+                style="margin-bottom:0;"
+              >
+                <span>
+                  {%- if c-product.selected_or_first_available_variant.available == false or quantity_rule_soldout -%}
+                    {{ 'products.product.sold_out' | t }}
+                  {%- else -%}
+                    Add - <span id="variant-price-{{ c-product.id }}-{{ location }}">{{ c-product.selected_or_first_available_variant.price | money | strip_html }}</span>
+                  {%- endif -%}
+                </span>
+                {%- render 'loading-spinner' -%}
+              </button>
+            </div>
+          {%- endform -%}
+      </div>
+    </product-form>
+  </div>
+</div>
+
+<style>
+  .collection-product-grid {
+    display: grid;
+    grid-template-areas:
+      "image"
+      "title"
+      "variants"
+      "buy-button";
+    width: 100%;
+    gap: 5px;
+    overflow: visible;
+  }
+  .collection-product-grid--image {
+    grid-area: image;
+    height: fit-content;
+  }
+  .collection-product-grid--image img {
+    width: 100%;
+    height: auto;
+    border: 1px solid lightgray;
+  }
+  .collection-product-grid--title {
+    grid-area: title;
+  }
+  .collection-product-grid--variants {
+    grid-area: variants;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 100%;
+    width: 100%;
+    overflow: visible;
+    position: relative;
+  }
+  .collection-product-grid--variants {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  .collection-product-grid--variants::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
+  .collection-product-grid--buy-buttons {
+    grid-area: buy-button;
+    width: 100%;
+  }
+  .collection-product-grid--buy-buttons.no-display {
+    display: none;
+  }
+</style>
